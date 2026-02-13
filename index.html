@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine?</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="confettiContainer" class="confetti-container"></div>
+    <div class="page">
+        <section id="landing" class="section active">
+            <div class="card">
+                <h1>Will you be my Valentine?</h1>
+                <p class="subtext">Choose wisely.</p>
+                <div class="button-row">
+                    <button id="yesBtn" class="btn btn-yes">Yes</button>
+                    <button id="noBtn" class="btn btn-no">No</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="message" class="section">
+            <div class="card">
+                <h2>My Love Message</h2>
+                <p class="message-text">
+                    You are my favorite person, my safe place, and my brightest light.
+                    Your smile is magic, your laugh is my favorite sound, and your heart
+                    is the most beautiful place I have ever known. You are stunning,
+                    kind, smart, and unforgettable. Every day with you feels like a
+                    gift, and I love you more than words could ever hold.
+                </p>
+                <div class="envelopes">
+                    <button class="envelope" data-note="You are my sweetest dream come true.">Open me</button>
+                    <button class="envelope" data-note="Your love makes everything better.">Open me</button>
+                    <button class="envelope" data-note="You are beautiful inside and out, always.">Open me</button>
+                </div>
+                <div id="noteReveal" class="note-reveal">Tap an envelope to reveal a note.</div>
+                <div class="button-row">
+                    <button id="startShowBtn" class="btn btn-yes">Click Me</button>
+                    <button id="shareBtn" class="btn btn-soft">Share</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="slideshow" class="section">
+            <div class="card">
+                <h2>Our Memories</h2>
+                <div class="slideshow">
+                    <img id="slideshowImage" alt="Our memory" src="" />
+                </div>
+                <p class="hint">Fast slideshow is playing. Enjoy!</p>
+                <audio id="loveSong" class="audio-player audio-hidden">
+                    <source id="songSource" src="" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        </section>
+    </div>
+
+    <div id="noPopup" class="popup hidden">
+        <div class="popup-content">
+            <img src="Babe/what.jpg" alt="Wait..." />
+            <button id="closePopup" class="btn btn-no">Close</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
