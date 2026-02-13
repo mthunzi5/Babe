@@ -20,7 +20,7 @@ const loveSong = document.getElementById("loveSong");
 const songSource = document.getElementById("songSource");
 
 // Update this if you add a song later
-const songPath = "Babe/Danya devs - Umuzi We Glass ft. Nomfundo Moh, Empro, Makhosi, Kinglee Beats (Visualiser) - UMUTHI.MP3"; // Example: "Babe/your-song.mp3"
+const songPath = "Babe/Danya devs - Umuzi We Glass ft. Nomfundo Moh, Empro, Makhosi, Kinglee Beats (Visualiser) - UMUTHI.mp3"; // Example: "Babe/your-song.mp3"
 
 const photos = [
     "Babe/20221122_160509.jpg",
