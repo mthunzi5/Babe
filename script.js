@@ -145,13 +145,17 @@ const puzzleImagePath = "Babe/puzzle.jpeg";
 const GRID_SIZE = 3;
 let puzzlePieces = [];
 let puzzleSlots = [];
-let draggedPiece = null;
+let selectedPiece = null;
 
 function initPuzzle() {
     const img = new Image();
     img.onload = () => {
         createPuzzlePieces(img);
         createPuzzleGrid();
+    };
+    img.onerror = () => {
+        console.error("Failed to load puzzle image");
+        document.getElementById("puzzleGrid").innerHTML = "<p>Image not found</p>";
     };
     img.src = puzzleImagePath;
 }
@@ -187,7 +191,6 @@ function createPuzzlePieces(img) {
         }
     }
     
-    // Shuffle pieces
     puzzlePieces.sort(() => Math.random() - 0.5);
     renderPuzzlePieces();
 }
@@ -197,25 +200,28 @@ function renderPuzzlePieces() {
     piecesContainer.innerHTML = "";
     
     puzzlePieces.forEach((piece, index) => {
-        const pieceEl = document.createElement("img");
-        pieceEl.src = piece.image;
+        if (piece.placed) return;
+        const pieceEl = document.createElement("div");
         pieceEl.className = "puzzle-piece";
-        pieceEl.draggable = true;
         pieceEl.dataset.index = index;
-        pieceEl.style.width = "100px";
-        pieceEl.style.height = "100px";
+        pieceEl.style.backgroundImage = `url('${piece.image}')`;
+        pieceEl.style.backgroundSize = "cover";
+        pieceEl.style.backgroundPosition = "center";
         
-        pieceEl.addEventListener("dragstart", (e) => {
-            draggedPiece = index;
-            pieceEl.classList.add("dragging");
-        });
-        
-        pieceEl.addEventListener("dragend", () => {
-            pieceEl.classList.remove("dragging");
+        pieceEl.addEventListener("click", () => {
+            selectPiece(index, pieceEl);
         });
         
         piecesContainer.appendChild(pieceEl);
     });
+}
+
+function selectPiece(index, element) {
+    if (selectedPiece) {
+        document.querySelector(`[data-index="${selectedPiece}"]`)?.classList.remove("selected");
+    }
+    selectedPiece = index;
+    element.classList.add("selected");
 }
 
 function createPuzzleGrid() {
@@ -238,21 +244,10 @@ function createPuzzleGrid() {
             };
             puzzleSlots.push(slotData);
             
-            slot.addEventListener("dragover", (e) => {
-                e.preventDefault();
-                slot.style.background = "#ffe1ea";
-            });
-            
-            slot.addEventListener("dragleave", () => {
-                slot.style.background = "#fff";
-            });
-            
-            slot.addEventListener("drop", (e) => {
-                e.preventDefault();
-                if (draggedPiece !== null) {
-                    placePiece(draggedPiece, slotData);
+            slot.addEventListener("click", () => {
+                if (selectedPiece !== null) {
+                    placePiece(selectedPiece, slotData);
                 }
-                slot.style.background = "#fff";
             });
             
             gridContainer.appendChild(slot);
@@ -265,14 +260,15 @@ function placePiece(pieceIndex, slotData) {
     const isCorrect = piece.correctRow === slotData.row && piece.correctCol === slotData.col;
     
     if (isCorrect) {
-        const img = document.createElement("img");
-        img.src = piece.image;
-        img.style.width = "100%";
-        img.style.height = "100%";
-        img.style.borderRadius = "8px";
+        const pieceEl = document.createElement("div");
+        pieceEl.style.backgroundImage = `url('${piece.image}')`;
+        pieceEl.style.backgroundSize = "cover";
+        pieceEl.style.width = "100%";
+        pieceEl.style.height = "100%";
+        pieceEl.style.borderRadius = "8px";
         
         slotData.element.innerHTML = "";
-        slotData.element.appendChild(img);
+        slotData.element.appendChild(pieceEl);
         slotData.element.classList.add("filled");
         slotData.pieceIndex = pieceIndex;
         piece.placed = true;
@@ -280,11 +276,9 @@ function placePiece(pieceIndex, slotData) {
         triggerConfetti(20);
         vibrate();
         
-        // Remove from pieces
-        const pieceEl = document.querySelector(`[data-index="${pieceIndex}"]`);
-        if (pieceEl) pieceEl.style.display = "none";
+        renderPuzzlePieces();
+        selectedPiece = null;
         
-        // Check if puzzle complete
         if (puzzlePieces.every(p => p.placed)) {
             setTimeout(() => {
                 triggerConfetti(100);
@@ -294,6 +288,7 @@ function placePiece(pieceIndex, slotData) {
         }
     } else {
         alert("Not quite right! Try another piece.");
+        selectedPiece = null;
     }
 }
 

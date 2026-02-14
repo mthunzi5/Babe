@@ -155,11 +155,11 @@ h2 {
 }
 
 .puzzle-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 30px;
     margin: 30px 0;
-    max-width: 900px;
+    max-width: 800px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -167,62 +167,72 @@ h2 {
 .puzzle-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-gap: 8px;
+    grid-gap: 12px;
     background: #f0f0f0;
-    padding: 15px;
+    padding: 20px;
     border-radius: 12px;
     aspect-ratio: 1;
+    max-width: 100%;
 }
 
 .puzzle-slot {
     background: #fff;
-    border: 2px dashed #ff3b6a;
-    border-radius: 8px;
-    min-height: 120px;
+    border: 3px dashed #ff3b6a;
+    border-radius: 10px;
+    min-height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    font-size: 2rem;
+    color: #ccc;
 }
 
 .puzzle-slot:hover {
     background: #fff5f7;
     border-color: #ff8db0;
+    transform: scale(1.02);
 }
 
 .puzzle-slot.filled {
     border-style: solid;
     border-color: #43e97b;
+    background: #f0f0f0;
 }
 
 .puzzle-pieces {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 15px;
     align-content: flex-start;
     background: #f9f9f9;
-    padding: 15px;
+    padding: 20px;
     border-radius: 12px;
-    min-height: 360px;
+    min-height: 200px;
+    justify-content: center;
 }
 
 .puzzle-piece {
-    cursor: grab;
+    width: 90px;
+    height: 90px;
+    cursor: pointer;
     user-select: none;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.2s ease;
+    border: 3px solid transparent;
 }
 
 .puzzle-piece:hover {
-    transform: scale(1.05);
+    transform: scale(1.08);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
-.puzzle-piece.dragging {
-    opacity: 0.7;
-    cursor: grabbing;
+.puzzle-piece.selected {
+    border-color: #ff3b6a;
+    transform: scale(1.12);
+    box-shadow: 0 8px 20px rgba(255, 59, 106, 0.3);
 }
 
 @media (max-width: 768px) {
@@ -231,8 +241,32 @@ h2 {
         gap: 20px;
     }
 
+    .puzzle-grid {
+        grid-gap: 10px;
+        padding: 15px;
+        aspect-ratio: auto;
+    }
+
+    .puzzle-slot {
+        min-height: 70px;
+    }
+
     .puzzle-pieces {
-        min-height: auto;
+        min-height: 150px;
+        gap: 12px;
+    }
+
+    .puzzle-piece {
+        width: 75px;
+        height: 75px;
+    }
+
+    .puzzle-piece:hover {
+        transform: scale(1.05);
+    }
+
+    .puzzle-piece.selected {
+        transform: scale(1.08);
     }
 }
 
