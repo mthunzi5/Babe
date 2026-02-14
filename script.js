@@ -50,8 +50,13 @@ const photos = [
     "Babe/Screenshot_20241013_231136_WhatsApp.jpg"
 ];
 
-let slideIndex = 0;
+const slideIndex = 0;
 let slideTimer = null;
+
+// Puzzle completion modal
+const puzzleCompleteModal = document.getElementById("puzzleCompleteModal");
+const puzzleCompleteImage = document.getElementById("puzzleCompleteImage");
+const closePuzzleCompleteBtn = document.getElementById("closePuzzleCompleteBtn");
 
 function showSection(sectionKey) {
     Object.values(sections).forEach(section => section.classList.remove("active"));
@@ -283,7 +288,7 @@ function placePiece(pieceIndex, slotData) {
             setTimeout(() => {
                 triggerConfetti(100);
                 vibrate();
-                alert("🎉 Puzzle Complete! You did it! 💕");
+                showPuzzleCompletion();
             }, 300);
         }
     } else {
@@ -296,9 +301,27 @@ function resetPuzzle() {
     initPuzzle();
 }
 
+function showPuzzleCompletion() {
+    // Display the full puzzle image in the modal
+    const img = new Image();
+    img.onload = () => {
+        puzzleCompleteImage.src = puzzleImagePath;
+        puzzleCompleteModal.classList.remove("hidden");
+    };
+    img.onerror = () => {
+        console.error("Failed to load puzzle completion image");
+    };
+    img.src = puzzleImagePath;
+}
+
 // Event listeners
 noBtn.addEventListener("click", showNoPopup);
 closePopup.addEventListener("click", hideNoPopup);
+
+closePuzzleCompleteBtn?.addEventListener("click", () => {
+    puzzleCompleteModal.classList.add("hidden");
+    showSection("slideshow");
+});
 
 yesBtn.addEventListener("click", () => {
     showSection("message");
