@@ -1,7 +1,8 @@
 const sections = {
     landing: document.getElementById("landing"),
     message: document.getElementById("message"),
-    slideshow: document.getElementById("slideshow")
+    slideshow: document.getElementById("slideshow"),
+    puzzle: document.getElementById("puzzle")
 };
 
 const yesBtn = document.getElementById("yesBtn");
@@ -139,6 +140,167 @@ function handleShare() {
     window.prompt("Copy this link:", shareData.url);
 }
 
+// ===== PUZZLE GAME =====
+const puzzleImagePath = "Babe/puzzle.jpeg";
+const GRID_SIZE = 3;
+let puzzlePieces = [];
+let puzzleSlots = [];
+let draggedPiece = null;
+
+function initPuzzle() {
+    const img = new Image();
+    img.onload = () => {
+        createPuzzlePieces(img);
+        createPuzzleGrid();
+    };
+    img.src = puzzleImagePath;
+}
+
+function createPuzzlePieces(img) {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    
+    const slotWidth = img.width / GRID_SIZE;
+    const slotHeight = img.height / GRID_SIZE;
+    
+    canvas.width = slotWidth;
+    canvas.height = slotHeight;
+    
+    puzzlePieces = [];
+    
+    for (let row = 0; row < GRID_SIZE; row++) {
+        for (let col = 0; col < GRID_SIZE; col++) {
+            ctx.clearRect(0, 0, slotWidth, slotHeight);
+            ctx.drawImage(
+                img,
+                col * slotWidth, row * slotHeight, slotWidth, slotHeight,
+                0, 0, slotWidth, slotHeight
+            );
+            
+            const pieceData = {
+                image: canvas.toDataURL(),
+                correctRow: row,
+                correctCol: col,
+                placed: false
+            };
+            puzzlePieces.push(pieceData);
+        }
+    }
+    
+    // Shuffle pieces
+    puzzlePieces.sort(() => Math.random() - 0.5);
+    renderPuzzlePieces();
+}
+
+function renderPuzzlePieces() {
+    const piecesContainer = document.getElementById("puzzlePieces");
+    piecesContainer.innerHTML = "";
+    
+    puzzlePieces.forEach((piece, index) => {
+        const pieceEl = document.createElement("img");
+        pieceEl.src = piece.image;
+        pieceEl.className = "puzzle-piece";
+        pieceEl.draggable = true;
+        pieceEl.dataset.index = index;
+        pieceEl.style.width = "100px";
+        pieceEl.style.height = "100px";
+        
+        pieceEl.addEventListener("dragstart", (e) => {
+            draggedPiece = index;
+            pieceEl.classList.add("dragging");
+        });
+        
+        pieceEl.addEventListener("dragend", () => {
+            pieceEl.classList.remove("dragging");
+        });
+        
+        piecesContainer.appendChild(pieceEl);
+    });
+}
+
+function createPuzzleGrid() {
+    const gridContainer = document.getElementById("puzzleGrid");
+    gridContainer.innerHTML = "";
+    puzzleSlots = [];
+    
+    for (let row = 0; row < GRID_SIZE; row++) {
+        for (let col = 0; col < GRID_SIZE; col++) {
+            const slot = document.createElement("div");
+            slot.className = "puzzle-slot";
+            slot.dataset.row = row;
+            slot.dataset.col = col;
+            
+            const slotData = {
+                element: slot,
+                row: row,
+                col: col,
+                pieceIndex: null
+            };
+            puzzleSlots.push(slotData);
+            
+            slot.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                slot.style.background = "#ffe1ea";
+            });
+            
+            slot.addEventListener("dragleave", () => {
+                slot.style.background = "#fff";
+            });
+            
+            slot.addEventListener("drop", (e) => {
+                e.preventDefault();
+                if (draggedPiece !== null) {
+                    placePiece(draggedPiece, slotData);
+                }
+                slot.style.background = "#fff";
+            });
+            
+            gridContainer.appendChild(slot);
+        }
+    }
+}
+
+function placePiece(pieceIndex, slotData) {
+    const piece = puzzlePieces[pieceIndex];
+    const isCorrect = piece.correctRow === slotData.row && piece.correctCol === slotData.col;
+    
+    if (isCorrect) {
+        const img = document.createElement("img");
+        img.src = piece.image;
+        img.style.width = "100%";
+        img.style.height = "100%";
+        img.style.borderRadius = "8px";
+        
+        slotData.element.innerHTML = "";
+        slotData.element.appendChild(img);
+        slotData.element.classList.add("filled");
+        slotData.pieceIndex = pieceIndex;
+        piece.placed = true;
+        
+        triggerConfetti(20);
+        vibrate();
+        
+        // Remove from pieces
+        const pieceEl = document.querySelector(`[data-index="${pieceIndex}"]`);
+        if (pieceEl) pieceEl.style.display = "none";
+        
+        // Check if puzzle complete
+        if (puzzlePieces.every(p => p.placed)) {
+            setTimeout(() => {
+                triggerConfetti(100);
+                vibrate();
+                alert("🎉 Puzzle Complete! You did it! 💕");
+            }, 300);
+        }
+    } else {
+        alert("Not quite right! Try another piece.");
+    }
+}
+
+function resetPuzzle() {
+    initPuzzle();
+}
+
 // Event listeners
 noBtn.addEventListener("click", showNoPopup);
 closePopup.addEventListener("click", hideNoPopup);
@@ -165,6 +327,29 @@ startShowBtn.addEventListener("click", () => {
 
 shareBtn.addEventListener("click", handleShare);
 
+document.getElementById("resetPuzzleBtn")?.addEventListener("click", resetPuzzle);
+document.getElementById("backFromPuzzleBtn")?.addEventListener("click", () => {
+    showSection("slideshow");
+});
+
+// Add button to slideshow to access puzzle
+const addPuzzleButtonBtn = document.createElement("button");
+addPuzzleButtonBtn.id = "playPuzzleBtn";
+addPuzzleButtonBtn.className = "btn btn-yes";
+addPuzzleButtonBtn.textContent = "Play Puzzle 🧩";
+addPuzzleButtonBtn.addEventListener("click", () => {
+    showSection("puzzle");
+    initPuzzle();
+});
+
 window.addEventListener("DOMContentLoaded", () => {
     loadSong();
+    
+    // Add puzzle button to slideshow after it loads
+    setTimeout(() => {
+        const slideshowCard = document.querySelector("#slideshow .card");
+        if (slideshowCard && !document.getElementById("playPuzzleBtn")) {
+            slideshowCard.appendChild(addPuzzleButtonBtn);
+        }
+    }, 100);
 });
